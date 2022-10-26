@@ -1,12 +1,11 @@
 # HARPIA Dual Detection package
+Performs simultaneous, not referenced, detection for HARPIA spectrometer, equipped with two linear array sensors.
 
 ## Requirements
  - Installed Light Conversion Launcher application. It is used to run this 
    script.
- - Installed and running HARPIA Service App. Connection with the spectrograph 
-   must be successful.
- - PDU. It must be connected to system-specific HARPIA's motor control port
- - Photodiode, placed after the PDU for beam intensity acquisition
+ - Installed and running HARPIA Service App, version 1.11 or greater. Connection 
+   with the spectrograph must be successful.
  
 ## Configuration
  - Start the Launcher application
@@ -15,12 +14,15 @@
  - The 'HARPIA REST' should be indicated as connected at '127.0.0.1' under the
    'Required connections'. If not, check HARPIA Service App and choose 'Refresh'
    in 'Connections' tab
- - Run the HARPIA Polarization Diagnostics script using the Launcher application
+ - Run the HARPIA Dual Detection script using the Launcher application
    by clicking 'Start'
 
-
-
-
 ## Operation
- 
-## Advanced
+### Continuous acquisition
+Click 'START/STOP CONTINUOUS ACQUISITION' to start/stop preview of the WLSc and 
+transient absorption signals.
+
+### Preset measurement
+Configure and select a corresponding Transient Absorption measurement
+preset in HARPIA Service App. In script, click 'START/STOP PRESET MEASUREMENT'
+to start the measurement.

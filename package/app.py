@@ -45,16 +45,32 @@ if not harpia:
 # =============================================================================
 # Parameters
 # =============================================================================
-    
-pumped_uncertainty = 0.15
-not_pumped_uncertainty = 0.15
+settings = None
 
-descriptions = ["H", "V"]
+def load_settings():
+    global settings
+    with open("./package/settings.json", "r") as f:
+        settings = json.loads(f.read())
 
-fnames = [r"C:\Users\butkus\Desktop\cam\s1.dat", r"C:\Users\butkus\Desktop\cam\s2.dat"]
+def save_settings():
+    global settings
+    with open("./package/settings.json", "w") as f:
+        json.dump(settings, f)
+
+load_settings()
+
+pumped_uncertainty = settings.get('pumped_uncertainty') or 0.15
+not_pumped_uncertainty = settings.get('not_pumped_uncertainty') or 0.15
+
+descriptions = settings.get('descriptions') or ["H", "V"]
+
+wlc = [None, None]
+wlc_sample = [None, None]
+
 # =============================================================================
 #  Parameters - END
 # =============================================================================
+
 
 
 class Worker(QObject):    
@@ -176,10 +192,7 @@ class Worker(QObject):
         # number of datapoints per spectrum
         datapoints_per_spectrum = harpia.datapoints_per_spectrum()
         
-        
         self.spectra_per_acquisition = harpia.spectra_per_acquisition()
-
-        
 
         self.measure_background()
         
@@ -188,8 +201,7 @@ class Worker(QObject):
         
         self.wavelength_axis = np.array(harpia.wavelength_axis())        
         
-        with open("./package/calibration.json", "r") as f:
-            self.scale_wl_poly = json.loads(f.read())['polynomial']
+        self.scale_wl_poly = settings['calibration']['polynomial']
             
         self.wavelength_axis2 = self.wavelength_axis + np.poly1d(self.scale_wl_poly)(np.arange(len(self.wavelength_axis)))
         self.wavelength_range = [np.max([self.wavelength_axis2[0], self.wavelength_axis[0]]), np.min([self.wavelength_axis2[-1], self.wavelength_axis[-1]])]            
@@ -234,7 +246,7 @@ class MainWindow(QMainWindow):
     canDraw = True
     worker = None
     calibration_done = [False,False]
-    working_directory = r"C:\Users\butkus\Desktop\cam"
+    working_directory = settings.get('working_directory') or r"C:\Users\Public\Desktop"
     
     def __init__(self, title):
         super().__init__()
@@ -271,7 +283,7 @@ class MainWindow(QMainWindow):
         
         self.wl_calibrate_button = QPushButton('CALIBRATE', self)
         self.wl_calibrate_button.setToolTip('Calibrate wavelength axis')
-        self.wl_calibrate_button.setEnabled(False)
+        # self.wl_calibrate_button.setEnabled(False)
         self.wl_calibrate_button.clicked.connect(self.wl_calibrate_button_on_click)
         
         self.sc = [MplCanvas(self, width=6, height=3, dpi=100)]
@@ -351,6 +363,9 @@ class MainWindow(QMainWindow):
         timestamp = time.strftime('%Y%m%d_%H%M')
         fnames = [os.path.join(self.working_directory_line.text(), timestamp+"_det" + descriptions[i] + ".dat") for i in [0,1]]
 
+        settings['working_directory'] = self.working_directory_line.text()
+        save_settings()
+
         self.thread = QThread()
         self.worker = Worker()
         self.worker.moveToThread(self.thread)
@@ -387,33 +402,55 @@ class MainWindow(QMainWindow):
             
             
         self.sc[0].ax1.set_xlim(wavelength_range)
-        self.sc[0].ax1.set_ylim([0, np.max([np.max(out_signal[0]['not_pumped']), np.max(out_signal[1]['not_pumped'])])])
+        self.sc[0].ax1.set_ylim([0, np.nanmax([np.nanmax(out_signal[0]['not_pumped']), np.nanmax(out_signal[1]['not_pumped'])])])
         self.sc[0].ax1.legend()
             
         self.sc[0].ax2.set_xlim(wavelength_range)
-        self.sc[0].ax2.set_ylim([np.min([np.min(spectra[0]), np.min(spectra[1])]),np.max([np.max(spectra[0]), np.max(spectra[1])])])
+        self.sc[0].ax2.set_ylim([np.nanmin([np.nanmin(spectra[0]), np.nanmin(spectra[1])]),np.max([np.nanmax(spectra[0]), np.nanmax(spectra[1])])])
         self.sc[0].ax2.legend()
                 
         self.sc[0].draw()
         app.processEvents()
         self.canDraw = True
+
+    def measure_for_calibration(self,is_without_sample):
+        harpia.close_all_shutters()
+        harpia.open_probe_shutter()
+        
+        data = harpia.raw_signal()
+
+        harpia.close_all_shutters()
+
+        wl = np.array(harpia.wavelength_axis())
+        
+        fname_prefix = 'no_sample_' if is_without_sample else 'sample_'
+
+        wlc = [np.vstack((wl, average_in_range(data['SpectrometerSignal']))), np.vstack((wl,average_in_range(data['AuxiliarySignal'])))]
+        np.savetxt('./package/' + fname_prefix + '0_WLSc.txt', np.transpose(wlc[0]), delimiter='\t', header="Wavelength (nm)\tDetector signal (V)")
+        np.savetxt('./package/' + fname_prefix + '1_WLSc auxiliary.txt', np.transpose(wlc[1]), delimiter='\t', header="Wavelength (nm)\tDetector signal (V)")
         
     @pyqtSlot()
     def wlc_no_sample_button_on_click(self):
-        
-        
+        self.measure_for_calibration(True)
         self.calibration_done[0] = True
         self.wl_calibrate_button.setEnabled(np.all(self.calibration_done))
         pass
     
     @pyqtSlot()
     def wlc_sample_button_on_click(self):
+        self.measure_for_calibration(False)
         self.calibration_done[1] = True
         self.wl_calibrate_button.setEnabled(np.all(self.calibration_done))
         pass
     
     @pyqtSlot()
     def wl_calibrate_button_on_click(self):
+        wlc = [np.loadtxt('./package/no_sample_0_WLSc.txt', skiprows=1, delimiter='\t'),np.loadtxt('./package/no_sample_1_WLSc auxiliary.txt', skiprows=1, delimiter='\t')]
+        wlc_sample = [np.loadtxt('./package/sample_0_WLSc.txt', skiprows=1, delimiter='\t'),np.loadtxt('./package/sample_1_WLSc auxiliary.txt', skiprows=1, delimiter='\t')]
+
+        calibration = get_wavelength_calibration(wlc, wlc_sample, descriptions)
+        settings['calibration'] = calibration
+        save_settings()
         pass
         
     @pyqtSlot()
