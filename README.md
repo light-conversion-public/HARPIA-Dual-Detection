@@ -25,4 +25,11 @@ transient absorption signals.
 ### Preset measurement
 Configure and select a corresponding Transient Absorption measurement
 preset in HARPIA Service App. In script, click 'START/STOP PRESET MEASUREMENT'
-to start the measurement.
+to start the measurement. Two files (`YYYYYMMDD_HHmm_detV.dat` and `YYYYYMMDD_HHmm_detH.dat`)
+will be created in the folder, indacatd in 'Working directory` field.
+
+### Calibration
+- Without any sample (for measurement or calibration) inserted, click 'Measure WLSc without ref'
+- Add the calibration sample and click `Measure WLSc with ref'
+- Click 'CALIBRATE' to finish the calibration. The calibration report will be produced in 
+  a seperate window.
