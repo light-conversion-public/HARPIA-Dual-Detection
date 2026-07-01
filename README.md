@@ -14,6 +14,9 @@ Performs simultaneous, not referenced, detection for HARPIA spectrometer, equipp
  - The 'HARPIA REST' should be indicated as connected at '127.0.0.1' under the
    'Required connections'. If not, check HARPIA Service App and choose 'Refresh'
    in 'Connections' tab
+ - Review default settings in `package/settings.json` file and apply neccessary 
+   modifications. For example, change `reversions` to `[False, True]` if second
+   output spectrum has to be reversed due to reflection. 
  - Run the HARPIA Dual Detection script using the Launcher application
    by clicking 'Start'
 

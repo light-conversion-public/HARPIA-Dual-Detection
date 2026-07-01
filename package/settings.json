@@ -5,6 +5,10 @@
         "H pol",
         "V pol"
     ],
+    "reversions": [
+        false,
+        false
+    ],
     "calibration": {
         "polynomial": [
             -7.100490840458168e-08,

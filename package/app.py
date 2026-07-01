@@ -63,6 +63,7 @@ pumped_uncertainty = settings.get('pumped_uncertainty') or 0.15
 not_pumped_uncertainty = settings.get('not_pumped_uncertainty') or 0.15
 
 descriptions = settings.get('descriptions') or ["H", "V"]
+reversions = settings.get('reversions') or [False, False]
 
 wlc = [None, None]
 wlc_sample = [None, None]
@@ -413,7 +414,7 @@ class MainWindow(QMainWindow):
         app.processEvents()
         self.canDraw = True
 
-    def measure_for_calibration(self,is_without_sample):
+    def measure_for_calibration(self, is_without_sample, reversions):
         harpia.close_all_shutters()
         harpia.open_probe_shutter()
         
@@ -425,20 +426,29 @@ class MainWindow(QMainWindow):
         
         fname_prefix = 'no_sample_' if is_without_sample else 'sample_'
 
-        wlc = [np.vstack((wl, average_in_range(data['SpectrometerSignal']))), np.vstack((wl,average_in_range(data['AuxiliarySignal'])))]
+        wlc = [
+            np.vstack((wl, average_in_range(data['SpectrometerSignal']))), 
+            np.vstack((wl, average_in_range(data['AuxiliarySignal'])))
+            ]
+        
+        if reversions[0]:
+            wlc[0] = np.flip(wlc[0], axis=1)
+        if reversions[1]:
+            wlc[1] = np.flip(wlc[1], axis=1)
+
         np.savetxt('./package/' + fname_prefix + '0_WLSc.txt', np.transpose(wlc[0]), delimiter='\t', header="Wavelength (nm)\tDetector signal (V)")
         np.savetxt('./package/' + fname_prefix + '1_WLSc auxiliary.txt', np.transpose(wlc[1]), delimiter='\t', header="Wavelength (nm)\tDetector signal (V)")
         
     @pyqtSlot()
     def wlc_no_sample_button_on_click(self):
-        self.measure_for_calibration(True)
+        self.measure_for_calibration(True, reversions)
         self.calibration_done[0] = True
         self.wl_calibrate_button.setEnabled(np.all(self.calibration_done))
         pass
     
     @pyqtSlot()
     def wlc_sample_button_on_click(self):
-        self.measure_for_calibration(False)
+        self.measure_for_calibration(False, reversions)
         self.calibration_done[1] = True
         self.wl_calibrate_button.setEnabled(np.all(self.calibration_done))
         pass
