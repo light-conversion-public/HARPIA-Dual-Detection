@@ -36,3 +36,16 @@ will be created in the folder, indacatd in 'Working directory` field.
 - Add the calibration sample and click `Measure WLSc with ref'
 - Click 'CALIBRATE' to finish the calibration. The calibration report will be produced in 
   a seperate window.
+
+## Changelog
+
+### [1.2.0] - 2026-07-01
+#### Fixed
+- Fixed `/Basic/CurrentPreset` endpoint compatibility with HARPIA Service App 1.16.0 or newer
+- Added `reversions` to `settings.json` which control spectrum reversion for each of two outputs
+- Fixed issue when white light supercontinuum spectrum minimum is < 0 and results in calibration
+  failure
+
+### [1.1.0] - 2022-10-26
+#### Added
+- Initial version
