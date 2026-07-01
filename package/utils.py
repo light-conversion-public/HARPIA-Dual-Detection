@@ -34,6 +34,9 @@ def get_wavelength_calibration(wlc, wlc_sample, descriptions):
         return np.sum(np.abs([wlc_sample_norm[0][i] - wlc_new[i] for i,wl in enumerate(wl[0])]))
 
     for i in [0,1]:
+        wlc_min = np.min(wlc[i][:,1])
+        if wlc_min < 0.0:
+            wlc[i][:,1] = wlc[i][:,1] - 2.0 * wlc_min
         wlc_sample_norm[i] = wlc_sample[i][:,1]/wlc[i][:,1]
 
     par0 = [0.0, 0.0]
