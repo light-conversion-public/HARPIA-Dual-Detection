@@ -87,7 +87,7 @@ class Worker(QObject):
         
         self.actions_before_measurement()
 
-        preset = harpia._get('/Basic/CurrentPreset')
+        preset = harpia._get('Basic/CurrentPreset')
 
         if preset.get('IsMeasurementTA'):
             number_of_runs = preset.get('NumberOfRuns') or 1
