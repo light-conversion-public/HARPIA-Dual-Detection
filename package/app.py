@@ -230,14 +230,12 @@ class MplCanvas(FigureCanvasQTAgg):
         self.ax1.set_title('WLSc spectrum')
         self.ax1.set_xlabel('Wavelength (nm)')
         self.ax1.set_ylabel('Voltage (V)')
-        self.ax2.legend()
         self.ax1.grid(True)        
     
         self.ax2.set_title('Pump-probe spectrum')
         self.ax2.set_xlabel('Wavelength (nm)')
         self.ax2.set_ylabel('$\Delta A$ (mOD)')
         self.ax2.grid(True)
-        self.ax2.legend()
         self.fig.tight_layout()
                 
         super(MplCanvas, self).__init__(self.fig)        
@@ -391,24 +389,25 @@ class MainWindow(QMainWindow):
         wavelength_axis2 = info['wavelength_axis2']
         wavelength_range = info['wavelength_range']        
         
+        labels = ['','']
+        
         for i, _ in enumerate(out_signal):
             self.sc[0].lines_wlc[i].set_xdata(wavelength_axis)
             self.sc[0].lines_wlc[i].set_ydata(out_signal[i]['not_pumped'])                
 
-
             self.sc[0].lines_pp[i].set_xdata(wavelength_axis)
             self.sc[0].lines_pp[i].set_ydata(spectra[i])            
 
-            self.sc[0].lines_pp[i].set_label('{:}, $T={:.2f}$ ps'.format(descriptions[i], info.get('delay') or 0.0))
-            
+            labels[i] = '{:}, $T={:.2f}$ ps'.format(descriptions[i], info.get('delay') or 0.0)
+            self.sc[0].lines_pp[i].set_label(labels[i])
             
         self.sc[0].ax1.set_xlim(wavelength_range)
         self.sc[0].ax1.set_ylim([0, np.nanmax([np.nanmax(out_signal[0]['not_pumped']), np.nanmax(out_signal[1]['not_pumped'])])])
-        self.sc[0].ax1.legend()
+        self.sc[0].ax1.legend(labels)
             
         self.sc[0].ax2.set_xlim(wavelength_range)
         self.sc[0].ax2.set_ylim([np.nanmin([np.nanmin(spectra[0]), np.nanmin(spectra[1])]),np.max([np.nanmax(spectra[0]), np.nanmax(spectra[1])])])
-        self.sc[0].ax2.legend()
+        self.sc[0].ax2.legend(labels)
                 
         self.sc[0].draw()
         app.processEvents()
