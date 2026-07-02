@@ -112,7 +112,7 @@ def average_in_place(signal, length = 256):
     out = [list([np.average(signal[i*length:(i*length + length)])])*length for i in range(int(len(signal)/length))]    
     return [el for row in out for el in row]
 
-def get_pumped_notpumped(spectrum, pd_integral, pumped_uncertainty, not_pumped_uncertainty, wavelength_axis = None, wavelength_axis2 = None, datapoints_per_spectrum = 256, scale = False):
+def get_pumped_notpumped(spectrum, pd_integral, pumped_uncertainty, not_pumped_uncertainty, wavelength_axis = None, wavelength_axis2 = None, datapoints_per_spectrum = 256, reverse = False):
     '''Separates pumped and not pumped spectra from continuous array according to given pd_integral value and uncertainties'''
     gap = np.max(pd_integral) - np.min(pd_integral)
     pumped_floor = np.max(pd_integral) - gap * pumped_uncertainty
@@ -132,6 +132,10 @@ def get_pumped_notpumped(spectrum, pd_integral, pumped_uncertainty, not_pumped_u
             
     pumped_signal = pumped_signal / np.sum(pumped_signal_idx)
     not_pumped_signal = not_pumped_signal / np.sum(not_pumped_signal_idx)
+    
+    if reverse:
+        pumped_signal = pumped_signal[::-1]
+        not_pumped_signal = not_pumped_signal[::-1]
     
     
     if wavelength_axis is not None and wavelength_axis2 is not None:
