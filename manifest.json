@@ -2,7 +2,7 @@
   "app_name": "HARPIA dual detection",
   "description": "Performs simultaneous, not referenced, detection for HARPIA spectrometer, equipped with two linear array sensors.",
   "documentation_link": "README.md",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "homepage": "https://github.com/light-conversion-public/HARPIA-Dual-Detection.git",
   "guid": "",
   "connections": [

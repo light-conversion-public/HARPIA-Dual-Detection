@@ -39,6 +39,10 @@ will be created in the folder, indacatd in 'Working directory` field.
 
 ## Changelog
 
+### [1.2.1] - 2026-07-03
+#### Fixed
+- Fixed spectrum reversing in continuous measurement
+
 ### [1.2.0] - 2026-07-01
 #### Fixed
 - Fixed `/Basic/CurrentPreset` endpoint compatibility with HARPIA Service App 1.16.0 or newer
