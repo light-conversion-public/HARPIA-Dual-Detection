@@ -137,6 +137,10 @@ def get_pumped_notpumped(spectrum, pd_integral, pumped_uncertainty, not_pumped_u
     pumped_signal = pumped_signal / np.sum(pumped_signal_idx)
     not_pumped_signal = not_pumped_signal / np.sum(not_pumped_signal_idx)
     
+    if reverse:
+        pumped_signal = pumped_signal[::-1]
+        not_pumped_signal = not_pumped_signal[::-1]
+    
     
         
     return {'pumped': pumped_signal, 'not_pumped': not_pumped_signal, 'pumped_count': np.sum(pumped_signal_idx), 'not_pumped_count': np.sum(not_pumped_signal_idx)}

@@ -101,7 +101,6 @@ class Worker(QObject):
 
                 self.measure_background()
 
-
                 for idelay, delay in enumerate(preset['DelayTimes']):
                     if not self.is_running:
                         break
@@ -146,10 +145,10 @@ class Worker(QObject):
         try:
             data = harpia.raw_signal()
             
-            out_signal=[get_pumped_notpumped(data['SpectrometerSignal'], average_in_place(data['PumpPhotodetectorSignal']), pumped_uncertainty, not_pumped_uncertainty, reverse = reversions[0]),
-                        get_pumped_notpumped(data['AuxiliarySignal'], average_in_place(data['PumpPhotodetectorSignal']), pumped_uncertainty, not_pumped_uncertainty, wavelength_axis=self.wavelength_axis, wavelength_axis2=self.wavelength_axis2, reverse = reversions[1])]
-            out_bckg = [get_pumped_notpumped(self.data_bckg['SpectrometerSignal'], average_in_place(self.data_bckg['PumpPhotodetectorSignal']), pumped_uncertainty, not_pumped_uncertainty, reverse = reversions[0]),
-                        get_pumped_notpumped(self.data_bckg['AuxiliarySignal'], average_in_place(self.data_bckg['PumpPhotodetectorSignal']), pumped_uncertainty, not_pumped_uncertainty, wavelength_axis=self.wavelength_axis, wavelength_axis2=self.wavelength_axis2, reverse = reversions[1])]
+            out_signal=[get_pumped_notpumped(data['SpectrometerSignal'], average_in_place(data['PumpPhotodetectorSignal']), pumped_uncertainty, not_pumped_uncertainty, reverse=reversions[0]),
+                        get_pumped_notpumped(data['AuxiliarySignal'], average_in_place(data['PumpPhotodetectorSignal']), pumped_uncertainty, not_pumped_uncertainty, wavelength_axis=self.wavelength_axis, wavelength_axis2=self.wavelength_axis2, reverse=reversions[1])]
+            out_bckg = [get_pumped_notpumped(self.data_bckg['SpectrometerSignal'], average_in_place(self.data_bckg['PumpPhotodetectorSignal']), pumped_uncertainty, not_pumped_uncertainty, reverse=reversions[0]),
+                        get_pumped_notpumped(self.data_bckg['AuxiliarySignal'], average_in_place(self.data_bckg['PumpPhotodetectorSignal']), pumped_uncertainty, not_pumped_uncertainty, wavelength_axis=self.wavelength_axis, wavelength_axis2=self.wavelength_axis2, reverse=reversions[1])]
                     
             return {
                 'delay': harpia.delay_line_actual_delay(),
